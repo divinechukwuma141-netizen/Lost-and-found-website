@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campus Lost &amp; Found</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1B2A4A;
+    --ink-soft:#2E3E60;
+    --paper:#FAF6EA;
+    --paper-dim:#F1EBDA;
+    --card:#FFFDF7;
+    --mustard:#E3A032;
+    --mustard-deep:#B87A1C;
+    --rust:#C1502E;
+    --rust-deep:#973A20;
+    --sage:#7C9473;
+    --text:#241F16;
+    --text-dim:#5B5647;
+    --line: rgba(27,42,74,0.14);
+    --shadow: 0 2px 0 rgba(27,42,74,0.08), 0 8px 20px rgba(27,42,74,0.08);
+    --radius: 4px;
+    --focus: #2E6DE0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink:#0F1830;
+      --ink-soft:#1C2740;
+      --paper:#171310;
+      --paper-dim:#1F1A15;
+      --card:#221D17;
+      --mustard:#E3A032;
+      --mustard-deep:#F0B854;
+      --rust:#E17049;
+      --rust-deep:#F08D66;
+      --sage:#8FAE85;
+      --text:#F1E9D8;
+      --text-dim:#C6BCA6;
+      --line: rgba(241,233,216,0.14);
+      --shadow: 0 2px 0 rgba(0,0,0,0.3), 0 10px 26px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#0F1830;
+    --ink-soft:#1C2740;
+    --paper:#171310;
+    --paper-dim:#1F1A15;
+    --card:#221D17;
+    --mustard:#E3A032;
+    --mustard-deep:#F0B854;
+    --rust:#E17049;
+    --rust-deep:#F08D66;
+    --sage:#8FAE85;
+    --text:#F1E9D8;
+    --text-dim:#C6BCA6;
+    --line: rgba(241,233,216,0.14);
+    --shadow: 0 2px 0 rgba(0,0,0,0.3), 0 10px 26px rgba(0,0,0,0.35);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--text);
+    font-family:'IBM Plex Sans', -apple-system, sans-serif;
+    line-height:1.5;
+    min-height:100vh;
+  }
+  ::selection{ background: var(--mustard); color:#1B1607; }
+  a{color:inherit;}
+  button{font-family:inherit;}
+  :focus-visible{outline:3px solid var(--focus); outline-offset:2px;}
+
+  .wrap{max-width:1180px; margin:0 auto; padding:0 24px;}
+
+  /* ---------- Header ---------- */
+  header.site{
+    background:
+      radial-gradient(circle at 85% -20%, rgba(227,160,50,0.18), transparent 55%),
+      var(--ink);
+    color:#F4EFE1;
+    padding:44px 0 34px;
+    border-bottom:6px solid var(--mustard);
+  }
+  .brand-row{display:flex; align-items:flex-start; justify-content:space-between; gap:24px; flex-wrap:wrap;}
+  .brand{display:flex; align-items:center; gap:16px;}
+  .brand-mark{
+    width:52px; height:52px; flex:none;
+    border:2px solid var(--mustard);
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces', serif; font-weight:600; font-size:22px;
+    color:var(--mustard);
+    transform:rotate(-6deg);
+  }
+  h1.brand-title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(28px, 4vw, 40px);
+    margin:0 0 4px;
+    letter-spacing:-0.01em;
+  }
+  .brand-sub{margin:0; color:#CBBFA0; font-size:15px; max-width:46ch;}
+  .stat-row{display:flex; gap:26px; flex-wrap:wrap;}
+  .stat{text-align:right;}
+  .stat .n{font-family:'Fraunces', serif; font-size:28px; font-weight:600; color:var(--mustard); line-height:1;}
+  .stat .l{font-size:12.5px; color:#CBBFA0; margin-top:4px;}
+
+  /* ---------- Nav tabs ---------- */
+  nav.tabs{
+    display:flex; gap:6px; margin-top:32px; flex-wrap:wrap;
+  }
+  .tab-btn{
+    background:transparent;
+    border:1.5px solid rgba(244,239,225,0.28);
+    color:#EDE6D4;
+    padding:10px 18px;
+    border-radius:999px;
+    font-size:14.5px;
+    font-weight:500;
+    cursor:pointer;
+    transition:background .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .tab-btn:hover{border-color:rgba(244,239,225,0.55);}
+  .tab-btn.active{
+    background:var(--mustard);
+    border-color:var(--mustard);
+    color:#1B1607;
+    font-weight:600;
+  }
+
+  main{padding:36px 0 80px;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ---------- Search / filter bar ---------- */
+  .filter-bar{
+    display:flex; gap:12px; flex-wrap:wrap; align-items:center;
+    background:var(--card);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+    border-radius:var(--radius);
+    padding:16px 18px;
+    margin-bottom:26px;
+  }
+  .filter-bar input[type="search"]{
+    flex:1 1 220px;
+    padding:11px 14px;
+    border-radius:var(--radius);
+    border:1.5px solid var(--line);
+    background:var(--paper);
+    color:var(--text);
+    font-size:15px;
+  }
+  .filter-bar select{
+    padding:11px 14px;
+    border-radius:var(--radius);
+    border:1.5px solid var(--line);
+    background:var(--paper);
+    color:var(--text);
+    font-size:14.5px;
+  }
+  .seg{display:flex; border:1.5px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+  .seg button{
+    background:var(--paper); border:none; padding:11px 16px; font-size:14.5px; color:var(--text-dim); cursor:pointer;
+    border-right:1.5px solid var(--line);
+  }
+  .seg button:last-child{border-right:none;}
+  .seg button.active{background:var(--ink); color:#F4EFE1; font-weight:600;}
+
+  .results-meta{
+    font-size:13.5px; color:var(--text-dim); margin:0 0 16px; font-family:'IBM Plex Mono', monospace;
+  }
+
+  /* ---------- Item grid ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(252px, 1fr));
+    gap:20px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .card:hover{transform:translateY(-3px);}
+  .card-photo{
+    aspect-ratio:4/3;
+    background:var(--paper-dim);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-dim);
+    font-size:13px;
+    position:relative;
+    overflow:hidden;
+  }
+  .card-photo img{width:100%; height:100%; object-fit:cover; display:block;}
+  .stamp{
+    position:absolute; top:10px; left:10px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; font-weight:500; letter-spacing:0.04em;
+    padding:4px 9px;
+    border-radius:3px;
+    border:1.5px solid;
+    transform:rotate(-4deg);
+    background:var(--card);
+  }
+  .stamp.lost{color:var(--rust-deep); border-color:var(--rust);}
+  .stamp.found{color:var(--sage); border-color:var(--sage);}
+  .card-body{padding:14px 16px 16px; display:flex; flex-direction:column; gap:6px; flex:1;}
+  .card-title{font-family:'Fraunces', serif; font-size:17px; font-weight:600; margin:0;}
+  .card-cat{font-size:12.5px; color:var(--text-dim); font-family:'IBM Plex Mono', monospace;}
+  .card-desc{font-size:13.5px; color:var(--text-dim); margin:2px 0 0; flex:1;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;}
+  .card-foot{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-top:10px; padding-top:10px; border-top:1px dashed var(--line);
+    font-size:12px; color:var(--text-dim);
+  }
+
+  .empty-state{
+    text-align:center; padding:70px 20px; color:var(--text-dim);
+  }
+  .empty-state .glyph{font-size:34px; margin-bottom:10px;}
+  .empty-state h3{font-family:'Fraunces', serif; color:var(--text); margin:0 0 6px;}
+
+  /* ---------- Report forms ---------- */
+  .form-wrap{
+    max-width:640px;
+    background:var(--card);
+    border:1px solid var(--line);
+    box-shadow:var(--shadow);
+    border-radius:var(--radius);
+    padding:30px 30px 26px;
+  }
+  .form-wrap h2{font-family:'Fraunces', serif; font-size:24px; margin:0 0 6px;}
+  .form-wrap .lede{color:var(--text-dim); font-size:14.5px; margin:0 0 24px;}
+  .field{margin-bottom:18px;}
+  .field label{display:block; font-size:13.5px; font-weight:600; margin-bottom:6px;}
+  .field .hint{font-weight:400; color:var(--text-dim); font-size:12.5px;}
+  .field input[type="text"],
+  .field input[type="email"],
+  .field input[type="tel"],
+  .field input[type="date"],
+  .field select,
+  .field textarea{
+    width:100%;
+    padding:11px 13px;
+    border-radius:var(--radius);
+    border:1.5px solid var(--line);
+    background:var(--paper);
+    color:var(--text);
+    font-size:14.5px;
+    font-family:inherit;
+  }
+  .field textarea{resize:vertical; min-height:80px;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:520px){.two-col{grid-template-columns:1fr;}}
+
+  .upload-box{
+    border:1.5px dashed var(--line);
+    border-radius:var(--radius);
+    padding:20px;
+    text-align:center;
+    background:var(--paper);
+    cursor:pointer;
+    position:relative;
+  }
+  .upload-box:hover{border-color:var(--mustard-deep);}
+  .upload-box input{position:absolute; inset:0; opacity:0; cursor:pointer;}
+  .upload-preview{width:100%; max-height:220px; object-fit:contain; border-radius:3px; margin-top:12px; display:none;}
+  .upload-text{font-size:13.5px; color:var(--text-dim);}
+
+  .btn-primary{
+    background:var(--ink); color:#F4EFE1; border:none;
+    padding:13px 22px; border-radius:var(--radius); font-size:15px; font-weight:600;
+    cursor:pointer;
+  }
+  .btn-primary:hover{background:var(--ink-soft);}
+  .form-msg{
+    margin-top:16px; padding:12px 14px; border-radius:var(--radius); font-size:13.5px; display:none;
+    background: color-mix(in srgb, var(--sage) 16%, var(--paper)); border:1px solid var(--sage); color:var(--text);
+  }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(15,20,30,0.55);
+    display:none; align-items:flex-start; justify-content:center;
+    padding:40px 16px; overflow-y:auto; z-index:50;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:var(--card); border-radius:var(--radius); max-width:560px; width:100%;
+    box-shadow:0 20px 50px rgba(0,0,0,0.35);
+    border:1px solid var(--line);
+  }
+  .modal-photo{width:100%; aspect-ratio:16/10; background:var(--paper-dim); object-fit:cover; display:block;}
+  .modal-photo-empty{width:100%; aspect-ratio:16/10; background:var(--paper-dim); display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:13px;}
+  .modal-body{padding:24px 26px 28px;}
+  .modal-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .modal-close{background:none; border:none; font-size:22px; cursor:pointer; color:var(--text-dim); line-height:1; padding:4px;}
+  .modal h2{font-family:'Fraunces', serif; font-size:22px; margin:10px 0 4px;}
+  .modal .cat{font-size:13px; color:var(--text-dim); font-family:'IBM Plex Mono', monospace; margin-bottom:14px;}
+  .modal .desc{font-size:14.5px; color:var(--text); margin-bottom:18px;}
+  .meta-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; font-size:13.5px; margin-bottom:20px;}
+  .meta-grid div span{display:block; color:var(--text-dim); font-size:11.5px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:2px;}
+  .contact-box{
+    background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:16px;
+  }
+  .contact-box h4{margin:0 0 10px; font-size:13px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-dim);}
+  .contact-row{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;}
+  .contact-row:last-child{margin-bottom:0;}
+  .contact-link{
+    color:var(--focus); font-weight:600; font-size:14px; text-decoration:none;
+  }
+  .contact-link:hover{text-decoration:underline;}
+
+  footer{
+    border-top:1px solid var(--line); padding:26px 0; text-align:center;
+    font-size:12.5px; color:var(--text-dim);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <div class="brand-row">
+      <div class="brand">
+        <div class="brand-mark">L&amp;F</div>
+        <div>
+          <h1 class="brand-title">Campus Lost &amp; Found</h1>
+          <p class="brand-sub">Report what's missing, claim what's been found, and reconnect with your things.</p>
+        </div>
+      </div>
+      <div class="stat-row">
+        <div class="stat"><div class="n" id="statLost">0</div><div class="l">Lost items</div></div>
+        <div class="stat"><div class="n" id="statFound">0</div><div class="l">Found items</div></div>
+      </div>
+    </div>
+    <nav class="tabs">
+      <button class="tab-btn active" data-view="browse">Browse items</button>
+      <button class="tab-btn" data-view="lost">Report lost</button>
+      <button class="tab-btn" data-view="found">Report found</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- BROWSE -->
+  <section class="view active" id="view-browse">
+    <div class="filter-bar">
+      <input type="search" id="searchInput" placeholder="Search by item, description, or location…">
+      <select id="categoryFilter">
+        <option value="">All categories</option>
+      </select>
+      <div class="seg" id="typeSeg">
+        <button class="active" data-type="">All</button>
+        <button data-type="lost">Lost</button>
+        <button data-type="found">Found</button>
+      </div>
+    </div>
+    <p class="results-meta" id="resultsMeta"></p>
+    <div class="grid" id="itemGrid"></div>
+  </section>
+
+  <!-- REPORT LOST -->
+  <section class="view" id="view-lost">
+    <div class="form-wrap">
+      <h2>Report a lost item</h2>
+      <p class="lede">Tell us what you lost so someone who finds it can reach you.</p>
+      <form id="lostForm">
+        <div class="field">
+          <label for="lost-title">Item name</label>
+          <input type="text" id="lost-title" required placeholder="e.g. Blue Jansport backpack">
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="lost-category">Category</label>
+            <select id="lost-category" required></select>
+          </div>
+          <div class="field">
+            <label for="lost-date">Date lost</label>
+            <input type="date" id="lost-date" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="lost-location">Last seen location <span class="hint">— be as specific as you can</span></label>
+          <input type="text" id="lost-location" required placeholder="e.g. Room 214, near the science block">
+        </div>
+        <div class="field">
+          <label for="lost-desc">Description</label>
+          <textarea id="lost-desc" required placeholder="Color, brand, any distinguishing marks or contents…"></textarea>
+        </div>
+        <div class="field">
+          <label>Photo <span class="hint">— optional, helps others recognize it</span></label>
+          <div class="upload-box">
+            <span class="upload-text">Click or drop an image here</span>
+            <input type="file" accept="image/*" id="lost-photo">
+            <img class="upload-preview" id="lost-preview">
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="lost-name">Your name</label>
+            <input type="text" id="lost-name" required placeholder="Full name">
+          </div>
+          <div class="field">
+            <label for="lost-email">Contact email or phone</label>
+            <input type="text" id="lost-email" required placeholder="you@school.edu">
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Submit lost item report</button>
+        <div class="form-msg" id="lost-msg">Your report has been posted to the board.</div>
+      </form>
+    </div>
+  </section>
+
+  <!-- REPORT FOUND -->
+  <section class="view" id="view-found">
+    <div class="form-wrap">
+      <h2>Report a found item</h2>
+      <p class="lede">Found something on campus? Post it here so its owner can find it.</p>
+      <form id="foundForm">
+        <div class="field">
+          <label for="found-title">Item name</label>
+          <input type="text" id="found-title" required placeholder="e.g. Silver water bottle">
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="found-category">Category</label>
+            <select id="found-category" required></select>
+          </div>
+          <div class="field">
+            <label for="found-date">Date found</label>
+            <input type="date" id="found-date" required>
+          </div>
+        </div>
+        <div class="field">
+          <label for="found-location">Where you found it</label>
+          <input type="text" id="found-location" required placeholder="e.g. Cafeteria, table near the window">
+        </div>
+        <div class="field">
+          <label for="found-desc">Description</label>
+          <textarea id="found-desc" required placeholder="Color, brand, any distinguishing marks or contents…"></textarea>
+        </div>
+        <div class="field">
+          <label>Photo <span class="hint">— optional, helps the owner recognize it</span></label>
+          <div class="upload-box">
+            <span class="upload-text">Click or drop an image here</span>
+            <input type="file" accept="image/*" id="found-photo">
+            <img class="upload-preview" id="found-preview">
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="field">
+            <label for="found-name">Your name</label>
+            <input type="text" id="found-name" required placeholder="Full name">
+          </div>
+          <div class="field">
+            <label for="found-email">Contact email or phone</label>
+            <input type="text" id="found-email" required placeholder="you@school.edu">
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Submit found item report</button>
+        <div class="form-msg" id="found-msg">Your report has been posted to the board.</div>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Campus Lost &amp; Found — a community board for reconnecting people with their things.
+</footer>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div id="modalPhotoWrap"></div>
+    <div class="modal-body">
+      <div class="modal-top">
+        <div>
+          <span class="stamp" id="modalStamp"></span>
+        </div>
+        <button class="modal-close" id="modalClose" aria-label="Close">&times;</button>
+      </div>
+      <h2 id="modalTitle"></h2>
+      <div class="cat" id="modalCat"></div>
+      <div class="desc" id="modalDesc"></div>
+      <div class="meta-grid">
+        <div><span>Location</span><div id="modalLoc"></div></div>
+        <div><span>Date</span><div id="modalDate"></div></div>
+      </div>
+      <div class="contact-box">
+        <h4>Contact reporter</h4>
+        <div class="contact-row">
+          <span id="modalName"></span>
+          <a class="contact-link" id="modalContactLink" href="#">Contact →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CATEGORIES = [
+    "Electronics", "Bags & Backpacks", "Clothing", "Books & Stationery",
+    "ID Cards & Keys", "Water Bottles & Lunch Boxes", "Jewelry & Accessories",
+    "Sports Equipment", "Other"
+  ];
+
+  var STORAGE_KEY = "campus_lost_found_items_v1";
+
+  var seedItems = [
+    {
+      id: "seed-1", type:"lost", title:"Blue Jansport Backpack", category:"Bags & Backpacks",
+      description:"Navy blue backpack with a small tear on the front pocket. Has a keychain with a fox charm attached.",
+      location:"Room 214, near the science block", date:"2026-09-10",
+      contactName:"Amara O.", contactEmail:"amara.o@school.edu", photo:null
+    },
+    {
+      id:"seed-2", type:"found", title:"Silver Water Bottle", category:"Water Bottles & Lunch Boxes",
+      description:"Stainless steel bottle, dented on the bottom, with a sticker of a cat on the side.",
+      location:"Cafeteria, table near the window", date:"2026-09-12",
+      contactName:"Mr. Yusuf (Front Desk)", contactEmail:"frontdesk@school.edu", photo:null
+    },
+    {
+      id:"seed-3", type:"lost", title:"TI-84 Graphing Calculator", category:"Electronics",
+      description:"Black TI-84 Plus with 'D. Nwosu' written on the back in white marker.",
+      location:"Math wing, room 108", date:"2026-09-14",
+      contactName:"David N.", contactEmail:"david.n@school.edu", photo:null
+    },
+    {
+      id:"seed-4", type:"found", title:"Set of Keys", category:"ID Cards & Keys",
+      description:"Three keys on a red lanyard with a small bird figurine.",
+      location:"Gym entrance", date:"2026-09-15",
+      contactName:"Coach Bello", contactEmail:"bello@school.edu", photo:null
+    }
+  ];
+
+  var items = [];
+  var currentType = ""; // "", "lost", "found" - browse filter
+
+  function loadItems(){
+    try{
+      var raw = window.localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        items = JSON.parse(raw);
+        return;
+      }
+    }catch(e){ /* storage unavailable, fall through to seed */ }
+    items = seedItems.slice();
+    saveItems();
+  }
+
+  function saveItems(){
+    try{
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    }catch(e){ /* per-viewer convenience only; ignore failures */ }
+  }
+
+  function uid(){
+    return "item-" + Date.now() + "-" + Math.floor(Math.random()*10000);
+  }
+
+  function escapeHtml(str){
+    var div = document.createElement("div");
+    div.textContent = str == null ? "" : String(str);
+    return div.innerHTML;
+  }
+
+  function formatDate(iso){
+    if(!iso) return "—";
+    var d = new Date(iso + "T00:00:00");
+    if(isNaN(d.getTime())) return iso;
+    return d.toLocaleDateString(undefined, {month:"short", day:"numeric", year:"numeric"});
+  }
+
+  /* ---------- Category selects ---------- */
+  function populateCategorySelects(){
+    var targets = [document.getElementById("categoryFilter"), document.getElementById("lost-category"), document.getElementById("found-category")];
+    targets.forEach(function(sel){
+      CATEGORIES.forEach(function(cat){
+        var opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        sel.appendChild(opt);
+      });
+    });
+  }
+
+  /* ---------- Tabs ---------- */
+  var tabButtons = document.querySelectorAll(".tab-btn");
+  tabButtons.forEach(function(btn){
+    btn.addEventListener("click", function(){
+      tabButtons.forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      var view = btn.getAttribute("data-view");
+      document.querySelectorAll(".view").forEach(function(v){ v.classList.remove("active"); });
+      document.getElementById("view-" + view).classList.add("active");
+    });
+  });
+
+  /* ---------- Stats ---------- */
+  function updateStats(){
+    var lost = items.filter(function(i){ return i.type === "lost"; }).length;
+    var found = items.filter(function(i){ return i.type === "found"; }).length;
+    document.getElementById("statLost").textContent = lost;
+    document.getElementById("statFound").textContent = found;
+  }
+
+  /* ---------- Filtering & rendering ---------- */
+  var searchInput = document.getElementById("searchInput");
+  var categoryFilter = document.getElementById("categoryFilter");
+  var typeSeg = document.getElementById("typeSeg");
+  var itemGrid = document.getElementById("itemGrid");
+  var resultsMeta = document.getElementById("resultsMeta");
+
+  typeSeg.querySelectorAll("button").forEach(function(btn){
+    btn.addEventListener("click", function(){
+      typeSeg.querySelectorAll("button").forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      currentType = btn.getAttribute("data-type");
+      renderGrid();
+    });
+  });
+  searchInput.addEventListener("input", renderGrid);
+  categoryFilter.addEventListener("change", renderGrid);
+
+  function renderGrid(){
+    var q = searchInput.value.trim().toLowerCase();
+    var cat = categoryFilter.value;
+
+    var filtered = items.filter(function(item){
+      if(currentType && item.type !== currentType) return false;
+      if(cat && item.category !== cat) return false;
+      if(q){
+        var hay = (item.title + " " + item.description + " " + item.location + " " + item.category).toLowerCase();
+        if(hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+
+    filtered.sort(function(a,b){ return (b.date||"").localeCompare(a.date||""); });
+
+    resultsMeta.textContent = filtered.length + (filtered.length === 1 ? " item" : " items") + " on the board";
+
+    itemGrid.innerHTML = "";
+
+    if(filtered.length === 0){
+      itemGrid.innerHTML =
+        '<div class="empty-state" style="grid-column:1/-1;">' +
+          '<div class="glyph">🔍</div>' +
+          '<h3>Nothing matches yet</h3>' +
+          '<p>Try a different search term, category, or check back later.</p>' +
+        '</div>';
+      return;
+    }
+
+    filtered.forEach(function(item){
+      var card = document.createElement("div");
+      card.className = "card";
+      card.tabIndex = 0;
+      card.setAttribute("role", "button");
+      card.setAttribute("aria-label", "View details for " + item.title);
+
+      card.innerHTML =
+        '<div class="card-photo">' +
+          '<span class="stamp ' + item.type + '">' + item.type.toUpperCase() + '</span>' +
+          (item.photo ? '<img src="' + item.photo + '" alt="">' : '<span>📦 No photo</span>') +
+        '</div>' +
+        '<div class="card-body">' +
+          '<p class="card-title">' + escapeHtml(item.title) + '</p>' +
+          '<p class="card-cat">' + escapeHtml(item.category) + '</p>' +
+          '<p class="card-desc">' + escapeHtml(item.description) + '</p>' +
+          '<div class="card-foot"><span>' + escapeHtml(item.location) + '</span><span>' + formatDate(item.date) + '</span></div>' +
+        '</div>';
+
+      card.addEventListener("click", function(){ openModal(item); });
+      card.addEventListener("keypress", function(e){ if(e.key === "Enter") openModal(item); });
+
+      itemGrid.appendChild(card);
+    });
+  }
+
+  /* ---------- Modal ---------- */
+  var modalOverlay = document.getElementById("modalOverlay");
+  var modalPhotoWrap = document.getElementById("modalPhotoWrap");
+
+  function openModal(item){
+    modalPhotoWrap.innerHTML = item.photo
+      ? '<img class="modal-photo" src="' + item.photo + '" alt="">'
+      : '<div class="modal-photo-empty">📦 No photo provided</div>';
+
+    var stampEl = document.getElementById("modalStamp");
+    stampEl.textContent = item.type.toUpperCase();
+    stampEl.className = "stamp " + item.type;
+
+    document.getElementById("modalTitle").textContent = item.title;
+    document.getElementById("modalCat").textContent = item.category;
+    document.getElementById("modalDesc").textContent = item.description;
+    document.getElementById("modalLoc").textContent = item.location;
+    document.getElementById("modalDate").textContent = formatDate(item.date);
+    document.getElementById("modalName").textContent = item.contactName;
+
+    var link = document.getElementById("modalContactLink");
+    var isEmail = item.contactEmail.indexOf("@") !== -1;
+    if(isEmail){
+      link.href = "mailto:" + item.contactEmail + "?subject=" + encodeURIComponent("About your " + item.type + " item: " + item.title);
+      link.textContent = item.contactEmail + " →";
+    } else {
+      link.href = "tel:" + item.contactEmail.replace(/[^0-9+]/g, "");
+      link.textContent = item.contactEmail + " →";
+    }
+
+    modalOverlay.classList.add("open");
+  }
+
+  document.getElementById("modalClose").addEventListener("click", closeModal);
+  modalOverlay.addEventListener("click", function(e){
+    if(e.target === modalOverlay) closeModal();
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape") closeModal();
+  });
+  function closeModal(){ modalOverlay.classList.remove("open"); }
+
+  /* ---------- Photo upload previews ---------- */
+  function wireUpload(inputId, previewId){
+    var input = document.getElementById(inputId);
+    var preview = document.getElementById(previewId);
+    input.addEventListener("change", function(){
+      var file = input.files && input.files[0];
+      if(!file) return;
+      var reader = new FileReader();
+      reader.onload = function(e){
+        preview.src = e.target.result;
+        preview.style.display = "block";
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  wireUpload("lost-photo", "lost-preview");
+  wireUpload("found-photo", "found-preview");
+
+  /* ---------- Forms ---------- */
+  function wireForm(formId, type){
+    var form = document.getElementById(formId);
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+
+      var prefix = type; // "lost" or "found"
+      var preview = document.getElementById(prefix + "-preview");
+      var photoData = (preview.style.display === "block") ? preview.src : null;
+
+      var newItem = {
+        id: uid(),
+        type: type,
+        title: document.getElementById(prefix + "-title").value.trim(),
+        category: document.getElementById(prefix + "-category").value,
+        description: document.getElementById(prefix + "-desc").value.trim(),
+        location: document.getElementById(prefix + "-location").value.trim(),
+        date: document.getElementById(prefix + "-date").value,
+        contactName: document.getElementById(prefix + "-name").value.trim(),
+        contactEmail: document.getElementById(prefix + "-email").value.trim(),
+        photo: photoData
+      };
+
+      items.unshift(newItem);
+      saveItems();
+      updateStats();
+      renderGrid();
+
+      var msg = document.getElementById(prefix + "-msg");
+      msg.style.display = "block";
+      form.reset();
+      preview.style.display = "none";
+      preview.src = "";
+
+      setTimeout(function(){ msg.style.display = "none"; }, 4000);
+
+      setTimeout(function(){
+        document.querySelector('.tab-btn[data-view="browse"]').click();
+        window.scrollTo({top:0, behavior:"smooth"});
+      }, 500);
+    });
+  }
+  wireForm("lostForm", "lost");
+  wireForm("foundForm", "found");
+
+  /* ---------- Init ---------- */
+  populateCategorySelects();
+  loadItems();
+  updateStats();
+  renderGrid();
+
+})();
+</script>
+</body>
+</html>
